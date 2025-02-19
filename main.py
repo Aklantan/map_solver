@@ -14,7 +14,6 @@ def main():
     line3 = Line(point2, point3)
     line4 = Line(point4,point1)
 
-    win.draw_line(line1,"black")
     win.draw_line(line2,"black")
     win.draw_line(line3,"black")
     win.draw_line(line4,"black")
