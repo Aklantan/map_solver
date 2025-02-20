@@ -16,7 +16,6 @@ def main():
 
     win.draw_line(line2,"black")
     win.draw_line(line3,"black")
-    win.draw_line(line4,"black")
 
     win.wait_for_close()
 
