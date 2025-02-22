@@ -33,6 +33,7 @@ def main():
     # cell4.draw_move(cell2,undo=True)
 
     maze = Maze(0,0,6,6,60,60,win,seed="emi")
+    print(maze.solve())
 
 
 
