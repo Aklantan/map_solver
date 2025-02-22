@@ -52,7 +52,7 @@ class Line():
 
 
 class Cell():
-    def __init__(self,x1,x2,y1,y2,win,has_left_wall = True, has_right_wall = True, has_top_wall = True, has_bottom_wall = True):
+    def __init__(self,x1,x2,y1,y2,win=None,has_left_wall = True, has_right_wall = True, has_top_wall = True, has_bottom_wall = True):
         self.has_left_wall = has_left_wall
         self.has_right_wall = has_right_wall
         self.has_top_wall = has_top_wall
@@ -64,16 +64,17 @@ class Cell():
         self._win = win
 
     def draw(self,):
-        canvas = self._win.get_canvas()
+        if self._win:
+            canvas = self._win.get_canvas()
 
-        if self.has_left_wall:
-            canvas.create_line(self._x1, self._y1,self._x1,self._y2,fill="black", width=2)
-        if self.has_top_wall:
-            canvas.create_line(self._x1, self._y2,self._x2,self._y2,fill="black", width=2)
-        if self.has_right_wall:
-            canvas.create_line(self._x2, self._y2,self._x2,self._y1,fill="black", width=2)
-        if self.has_bottom_wall:
-            canvas.create_line(self._x2, self._y1,self._x1,self._y1,fill="black", width=2)
+            if self.has_left_wall:
+                canvas.create_line(self._x1, self._y1,self._x1,self._y2,fill="black", width=2)
+            if self.has_top_wall:
+                canvas.create_line(self._x1, self._y2,self._x2,self._y2,fill="black", width=2)
+            if self.has_right_wall:
+                canvas.create_line(self._x2, self._y2,self._x2,self._y1,fill="black", width=2)
+            if self.has_bottom_wall:
+                canvas.create_line(self._x2, self._y1,self._x1,self._y1,fill="black", width=2)
 
     def draw_move(self,to_cell, undo = False):
         canvas = self._win.get_canvas()
@@ -99,7 +100,7 @@ class Maze():
         num_cols,
         cell_size_x,
         cell_size_y,
-        win,
+        win = None,
     ):
         self._x1 = x1
         self._y1 = y1
@@ -115,20 +116,22 @@ class Maze():
         starting_x = self._x1
         starting_y = self._y1
 
-        for r in range(self._num_rows):
-            self._cells.append([Cell(x1 = starting_x + (i * self._cell_size_x),x2 = starting_x + (i * self._cell_size_x) + self._cell_size_x,y1 = starting_y + (r * self._cell_size_y),y2 = starting_y + (r * self._cell_size_y) + self._cell_size_y,win=self._win) for i in range(self._num_cols)])
+        for r in range(self._num_cols):
+            self._cells.append([Cell(x1 = starting_x + (i * self._cell_size_x),x2 = starting_x + (i * self._cell_size_x) + self._cell_size_x,y1 = starting_y + (r * self._cell_size_y),y2 = starting_y + (r * self._cell_size_y) + self._cell_size_y,win=self._win) for i in range(self._num_rows)])
         for i in range(self._num_rows):
             for j in range(self._num_cols):
                 self._draw_cell(i,j)
             
 
     def _draw_cell(self, i, j):
-        self._cells[i][j].draw()
-        self._animate()
+        if self._win:
+            self._cells[i][j].draw()
+            self._animate()
 
     def _animate(self):
-        self._win.redraw()
-        time.sleep(0.05)
+        if self._win:
+            self._win.redraw()
+            time.sleep(0.05)
 
         
 
