@@ -32,7 +32,8 @@ def main():
     # cell3.draw_move(cell4)
     # cell4.draw_move(cell2,undo=True)
 
-    maze = Maze(0,0,10,10,60,60,win)
+    maze = Maze(0,0,6,6,60,60,win,seed="emi")
+
 
 
     win.wait_for_close()

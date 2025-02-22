@@ -1,5 +1,6 @@
 from tkinter import Tk, BOTH, Canvas
 import time
+import random
 
 class Window():
 
@@ -62,6 +63,7 @@ class Cell():
         self._y1 = y1
         self._y2 = y2
         self._win = win
+        self._visited = False
 
     def draw(self,):
         if self._win:
@@ -69,12 +71,23 @@ class Cell():
 
             if self.has_left_wall:
                 canvas.create_line(self._x1, self._y1,self._x1,self._y2,fill="black", width=2)
-            if self.has_top_wall:
+            else:
+                canvas.create_line(self._x1, self._y1,self._x1,self._y2,fill="white", width=2)
+
+            if self.has_bottom_wall:
                 canvas.create_line(self._x1, self._y2,self._x2,self._y2,fill="black", width=2)
+            else:
+                canvas.create_line(self._x1, self._y2,self._x2,self._y2,fill="white", width=2)
+
             if self.has_right_wall:
                 canvas.create_line(self._x2, self._y2,self._x2,self._y1,fill="black", width=2)
-            if self.has_bottom_wall:
+            else:
+                canvas.create_line(self._x2, self._y2,self._x2,self._y1,fill="white", width=2)
+
+            if self.has_top_wall:
                 canvas.create_line(self._x2, self._y1,self._x1,self._y1,fill="black", width=2)
+            else:
+                canvas.create_line(self._x2, self._y1,self._x1,self._y1,fill="white", width=2)
 
     def draw_move(self,to_cell, undo = False):
         canvas = self._win.get_canvas()
@@ -101,6 +114,7 @@ class Maze():
         cell_size_x,
         cell_size_y,
         win = None,
+        seed = None
     ):
         self._x1 = x1
         self._y1 = y1
@@ -111,6 +125,8 @@ class Maze():
         self._win = win
         self._cells = []
         self._create_cells()
+        self._break_entrance_and_exit()
+        self._seed = seed
 
     def _create_cells(self):
         starting_x = self._x1
@@ -118,20 +134,104 @@ class Maze():
 
         for r in range(self._num_cols):
             self._cells.append([Cell(x1 = starting_x + (i * self._cell_size_x),x2 = starting_x + (i * self._cell_size_x) + self._cell_size_x,y1 = starting_y + (r * self._cell_size_y),y2 = starting_y + (r * self._cell_size_y) + self._cell_size_y,win=self._win) for i in range(self._num_rows)])
-        for i in range(self._num_rows):
-            for j in range(self._num_cols):
+        self._break_walls()
+        for i in range(self._num_cols):
+            for j in range(self._num_rows):
                 self._draw_cell(i,j)
+        self._animate()
             
 
     def _draw_cell(self, i, j):
+        if i == self._num_cols-1 and j == self._num_rows-1:
+            print("Exit cell processed at:", time.time())
         if self._win:
             self._cells[i][j].draw()
-            self._animate()
+            
 
     def _animate(self):
         if self._win:
             self._win.redraw()
             time.sleep(0.05)
+
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].has_top_wall= False
+        self._cells[0][0].draw()
+        self._cells[-1][-1].has_bottom_wall= False
+        self._cells[-1][-1].draw()
+
+    def _break_walls_r(self,i,j):
+        self._cells[i][j]._visited = True
+        while True:
+            visited = []
+            if self._validate_cell(i-1,j) and self._cells[i-1][j]._visited == False:
+                visited.append((i-1,j))
+            if self._validate_cell(i,j+1) and self._cells[i][j+1]._visited == False:
+                visited.append((i,j+1))
+            if self._validate_cell(i+1,j) and self._cells[i+1][j]._visited == False:
+                visited.append((i+1,j))
+            if self._validate_cell(i,j-1) and self._cells[i][j-1]._visited == False:
+                visited.append((i,j-1))
+            if not visited:
+                 self._cells[i][j].draw()
+                 return
+            new_direction = random.randrange(len(visited))
+            movement = ""
+            if visited[new_direction][0] != i:
+                if visited[new_direction][0] < i:
+                    movement = "up"
+                else:
+                    movement = "down"
+            if visited[new_direction][1] != j:
+                if visited[new_direction][1] < j:
+                    movement = "left"
+                else:
+                    movement = "right"
+            
+            print(f"At cell ({i},{j}), moving {movement}, breaking walls")
+
+            match movement:
+                case "up":
+                    # break current cell's top wall
+                    self._cells[i][j].has_top_wall = False
+                    # break new cell's bottom wall
+                    self._cells[i-1][j].has_bottom_wall = False
+                case "down":
+                    # break current cell's bottom wall
+                    self._cells[i][j].has_bottom_wall = False
+                    # break new cell's top wall
+                    self._cells[i+1][j].has_top_wall = False
+                case "left":
+                    # break current cell's left wall
+                    self._cells[i][j].has_left_wall = False
+                    # break new cell's right wall
+                    self._cells[i][j-1].has_right_wall = False
+                case "right":
+                    # break current cell's right wall
+                    self._cells[i][j].has_right_wall = False
+                    # break new cell's left wall
+                    self._cells[i][j+1].has_left_wall = False
+
+            self._break_walls_r(visited[new_direction][0],visited[new_direction][1])
+
+
+             
+    def _break_walls(self):
+        self._break_walls_r(0, 0)
+        
+        # Debug: count visited cells
+        visited_count = sum(cell._visited for row in self._cells for cell in row)
+        total_cells = self._num_cols * self._num_rows
+        print(f"Visited {visited_count} out of {total_cells} cells")
+                
+            
+
+    def _validate_cell(self, i,j):
+        return 0 <= i < self._num_cols and 0 <= j < self._num_rows
+         
+
+
+
+
 
         
 
