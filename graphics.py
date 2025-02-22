@@ -74,6 +74,27 @@ class Cell():
         if self.has_bottom_wall:
             canvas.create_line(self._x2, self._y1,self._x1,self._y1,fill="black", width=2)
 
+    def draw_move(self,to_cell, undo = False):
+        canvas = self._win.get_canvas()
+        fill_color = "red"
+        start_x = (self._x1+self._x2)/2
+        start_y = (self._y1+self._y2)/2
+        stop_x = (to_cell._x1+to_cell._x2)/2
+        stop_y = (to_cell._y1+to_cell._y2)/2
+
+        if undo:
+            fill_color = "gray"
+        
+        canvas.create_line(start_x, start_y,stop_x,stop_y,fill=fill_color, width=2)
+        
+
+
+        
+
+
+
+        
+
 
 
 
