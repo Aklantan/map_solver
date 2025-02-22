@@ -123,10 +123,12 @@ class Maze():
         self._cell_size_x = cell_size_x
         self._cell_size_y = cell_size_y
         self._win = win
+        self._seed = seed
         self._cells = []
         self._create_cells()
         self._break_entrance_and_exit()
-        self._seed = seed
+        self._reset_cells_visited()
+        
 
     def _create_cells(self):
         starting_x = self._x1
@@ -142,8 +144,8 @@ class Maze():
             
 
     def _draw_cell(self, i, j):
-        if i == self._num_cols-1 and j == self._num_rows-1:
-            print("Exit cell processed at:", time.time())
+        #if i == self._num_cols-1 and j == self._num_rows-1:
+        #   print("Exit cell processed at:", time.time())
         if self._win:
             self._cells[i][j].draw()
             
@@ -187,7 +189,7 @@ class Maze():
                 else:
                     movement = "right"
             
-            print(f"At cell ({i},{j}), moving {movement}, breaking walls")
+            #print(f"At cell ({i},{j}), moving {movement}, breaking walls")
 
             match movement:
                 case "up":
@@ -221,13 +223,18 @@ class Maze():
         # Debug: count visited cells
         visited_count = sum(cell._visited for row in self._cells for cell in row)
         total_cells = self._num_cols * self._num_rows
-        print(f"Visited {visited_count} out of {total_cells} cells")
+        #print(f"Visited {visited_count} out of {total_cells} cells")
                 
             
 
     def _validate_cell(self, i,j):
         return 0 <= i < self._num_cols and 0 <= j < self._num_rows
-         
+        
+    def _reset_cells_visited(self):
+        for i in range(self._num_cols):
+            for j in range(self._num_rows):
+                self._cells[i][j]._visited = False
+
 
 
 
